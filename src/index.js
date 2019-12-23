@@ -51,8 +51,8 @@ const continuePolyline = (el, p) => {
 };
 
 let getRanddomAxis = () => [
-  { x: Math.random() * 300 + 400, y: Math.random() * 300 + 400 },
-  { x: Math.random() * 300 + 400, y: Math.random() * 300 + 400 }
+  { x: Math.random() * 500 + 400, y: Math.random() * 500 + 400 },
+  { x: Math.random() * 500 + 400, y: Math.random() * 500 + 400 }
 ];
 
 const axes = [
