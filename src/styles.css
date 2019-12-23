@@ -1,0 +1,13 @@
+body {
+  font-family: sans-serif;
+}
+
+#app {
+  border: 1px solid #ccc;
+  height: 1000px;
+}
+
+#mirrored {
+  border: 1px solid #ccc;
+  height: 1000px;
+}
