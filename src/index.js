@@ -1,39 +1,29 @@
 import "./styles.css";
 import SVG from "svg.js";
-import "svg.draw.js";
 
 const draw = new SVG("app");
-const mirrored = new SVG("mirrored");
 
-const shapes = [];
 const shapesMirrored = [];
 
 let index = 0;
-let shape;
 
-const lines = [[502, 500], [500, 520], [[502, 509], [500, 527]]];
+const getRandomColor = () => {
+  let c = Math.floor(Math.random() * 16777215).toString(16);
+  while (c.length < 6) c = "0" + c;
+  return "#" + c;
+};
+
+const col = getRandomColor();
 
 const getDrawObject = () => {
   const color = document.getElementById("color").value;
   const option = {
-    stroke: color,
+    stroke: col,
     "stroke-width": 2,
     "fill-opacity": 0.1
   };
 
   return draw.polyline().attr(option);
-};
-
-const getDrawObjectMirrored = () => {
-  const color = document.getElementById("color").value;
-  const option = {
-    stroke: "#" + Math.floor(Math.random() * 16777215).toString(16),
-    fill: color,
-    "stroke-width": 1,
-    "fill-opacity": 0
-  };
-
-  return mirrored.polyline().attr(option);
 };
 
 const startPolyLine = (el, p) => {
@@ -51,8 +41,8 @@ const continuePolyline = (el, p) => {
 };
 
 let getRanddomAxis = () => [
-  { x: Math.random() * 500 + 400, y: Math.random() * 500 + 400 },
-  { x: Math.random() * 500 + 400, y: Math.random() * 500 + 400 }
+  { x: Math.random() * 500 + 200, y: Math.random() * 500 + 400 },
+  { x: Math.random() * 500 + 200, y: Math.random() * 500 + 400 }
 ];
 
 const axes = [
@@ -79,22 +69,17 @@ const mirrorPoint = (isStart, p) => {
 };
 
 draw.on("mousedown", event => {
-  const shape = getDrawObjectMirrored();
-  shapes[index] = shape;
-  shape.draw(event);
   const p = { x: event.clientX, y: event.clientY };
   mirrorPoint(true, p);
 });
 draw.on("mousemove", event => {
-  if (shapes[index]) {
-    shapes[index].draw("point", event);
+  if (shapesMirrored[index]) {
     const p = { x: event.clientX, y: event.clientY };
     mirrorPoint(false, p);
   }
 });
 draw.on("mouseup", event => {
-  if (shapes[index]) {
-    shapes[index].draw("stop", event);
+  if (shapesMirrored[index]) {
     index++;
   }
 });
@@ -113,66 +98,3 @@ function mirror(Q, [P, R]) {
     y: Q.y + 2 * (y - y * vy * vy * r - x * vx * vy * r)
   };
 }
-
-// This is custom extension of line, polyline, polygon which doesn't draw the circle on the line.
-SVG.Element.prototype.draw.extend("line polyline polygon", {
-  init: function(e) {
-    // When we draw a polygon, we immediately need 2 points.
-    // One start-point and one point at the mouse-position
-
-    this.set = new SVG.Set();
-
-    var p = this.startPoint,
-      arr = [[p.x, p.y], [p.x, p.y]];
-
-    this.el.plot(arr);
-  },
-
-  // The calc-function sets the position of the last point to the mouse-position (with offset ofc)
-  calc: function(e) {
-    var arr = this.el.array().valueOf();
-    arr.pop();
-
-    if (e) {
-      var p = this.transformPoint(e.clientX, e.clientY);
-      arr.push(this.snapToGrid([p.x, p.y]));
-    }
-
-    this.el.plot(arr);
-  },
-
-  point: function(e) {
-    if (this.el.type.indexOf("poly") > -1) {
-      // Add the new Point to the point-array
-      var p = this.transformPoint(e.clientX, e.clientY),
-        arr = this.el.array().valueOf();
-
-      arr.push(this.snapToGrid([p.x, p.y]));
-
-      this.el.plot(arr);
-
-      // Fire the `drawpoint`-event, which holds the coords of the new Point
-      this.el.fire("drawpoint", {
-        event: e,
-        p: { x: p.x, y: p.y },
-        m: this.m
-      });
-
-      return;
-    }
-
-    // We are done, if the element is no polyline or polygon
-    this.stop(e);
-  },
-
-  clean: function() {
-    // Remove all circles
-    this.set.each(function() {
-      this.remove();
-    });
-
-    this.set.clear();
-
-    delete this.set;
-  }
-});

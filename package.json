@@ -8,7 +8,6 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "svg.draw.js": "2.0.4",
     "svg.js": "2.7.1"
   },
   "devDependencies": {
