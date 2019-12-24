@@ -3,7 +3,9 @@ import SVG from "svg.js";
 
 const draw = new SVG("app");
 
-const shapesMirrored = [];
+var shapesMirrored = [];
+let viewPortWidth = document.documentElement.clientWidth - 13;
+let viewPortHeight = document.documentElement.clientHeight - 13;
 
 let index = 0;
 
@@ -13,10 +15,9 @@ const getRandomColor = () => {
   return "#" + c;
 };
 
-const col = getRandomColor();
+let col = getRandomColor();
 
 const getDrawObject = () => {
-  const color = document.getElementById("color").value;
   const option = {
     stroke: col,
     "stroke-width": 2,
@@ -41,19 +42,31 @@ const continuePolyline = (el, p) => {
 };
 
 let getRanddomAxis = () => [
-  { x: Math.random() * 500 + 200, y: Math.random() * 500 + 400 },
-  { x: Math.random() * 500 + 200, y: Math.random() * 500 + 400 }
+  {
+    x: Math.random() * 500 + viewPortWidth / 2 - 250,
+    y: Math.random() * 500 + viewPortHeight / 2 - 250
+  },
+  {
+    x: Math.random() * 500 + viewPortWidth / 2 - 250,
+    y: Math.random() * 500 + viewPortHeight / 2 - 250
+  }
 ];
 
-const axes = [
-  getRanddomAxis(),
-  getRanddomAxis(),
-  getRanddomAxis(),
-  getRanddomAxis(),
-  getRanddomAxis(),
-  getRanddomAxis(),
-  getRanddomAxis()
-];
+let axes;
+
+const initAxes = () => {
+  axes = [
+    getRanddomAxis(),
+    getRanddomAxis(),
+    getRanddomAxis(),
+    getRanddomAxis(),
+    getRanddomAxis(),
+    getRanddomAxis(),
+    getRanddomAxis()
+  ];
+};
+
+initAxes();
 
 const mirrorPoint = (isStart, p) => {
   let ps = [p];
@@ -98,3 +111,32 @@ function mirror(Q, [P, R]) {
     y: Q.y + 2 * (y - y * vy * vy * r - x * vx * vy * r)
   };
 }
+
+document.addEventListener("keydown", logKey);
+
+function clear() {
+  draw.clear();
+  shapesMirrored.splice(0, shapesMirrored.length);
+  col = getRandomColor();
+  initAxes();
+}
+
+function logKey(e) {
+  if (e.code === "Space") {
+    clear();
+  }
+}
+
+const drawTang = () => {
+  draw.clear();
+
+  draw.size(viewPortWidth, viewPortHeight);
+};
+
+drawTang();
+
+window.onresize = function(event) {
+  viewPortWidth = document.documentElement.clientWidth - 13;
+  viewPortHeight = document.documentElement.clientHeight - 13;
+  drawTang();
+};
